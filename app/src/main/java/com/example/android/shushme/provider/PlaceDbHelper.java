@@ -31,7 +31,7 @@ public class PlaceDbHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Constructor
-    public PlaceDbHelper(Context context) {
+    PlaceDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

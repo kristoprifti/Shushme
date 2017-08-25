@@ -16,10 +16,19 @@ package com.example.android.shushme;
 * limitations under the License.
 */
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.media.AudioManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
+
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingEvent;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
@@ -58,7 +67,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         // Send the notification
         sendNotification(context, geofenceTransition);
     }
-
 
     /**
      * Posts a notification in the notification bar when a transition is detected
@@ -114,6 +122,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Issue the notification
+        assert mNotificationManager != null;
         mNotificationManager.notify(0, builder.build());
     }
 
@@ -127,9 +136,11 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     private void setRingerMode(Context context, int mode) {
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         // Check for DND permissions for API 24+
+        assert nm != null;
         if (android.os.Build.VERSION.SDK_INT < 24 ||
                 (android.os.Build.VERSION.SDK_INT >= 24 && !nm.isNotificationPolicyAccessGranted())) {
             AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            assert audioManager != null;
             audioManager.setRingerMode(mode);
         }
     }

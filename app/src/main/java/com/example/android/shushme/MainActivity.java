@@ -16,6 +16,7 @@ package com.example.android.shushme;
 * limitations under the License.
 */
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -23,9 +24,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -66,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements
 
     // Member variables
     private PlaceListAdapter mAdapter;
-    private RecyclerView mRecyclerView;
     private boolean mIsEnabled;
     private GoogleApiClient mClient;
     private Geofencing mGeofencing;
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         // Set up the recycler view
-        mRecyclerView = (RecyclerView) findViewById(R.id.places_list_recycler_view);
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.places_list_recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new PlaceListAdapter(this, null);
         mRecyclerView.setAdapter(mAdapter);
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements
                 SharedPreferences.Editor editor = getPreferences(MODE_PRIVATE).edit();
                 editor.putBoolean(getString(R.string.setting_enabled), isChecked);
                 mIsEnabled = isChecked;
-                editor.commit();
+                editor.apply();
                 if (isChecked) mGeofencing.registerAllGeofences();
                 else mGeofencing.unRegisterAllGeofences();
             }
@@ -116,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements
                 .build();
 
         mGeofencing = new Geofencing(this, mClient);
-
     }
 
     /***
@@ -152,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public void refreshPlacesData() {
         Uri uri = PlaceContract.PlaceEntry.CONTENT_URI;
+        @SuppressLint("Recycle")
         Cursor data = getContentResolver().query(
                 uri,
                 null,
@@ -160,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements
                 null);
 
         if (data == null || data.getCount() == 0) return;
-        List<String> guids = new ArrayList<String>();
+        List<String> guids = new ArrayList<>();
         while (data.moveToNext()) {
             guids.add(data.getString(data.getColumnIndex(PlaceContract.PlaceEntry.COLUMN_PLACE_ID)));
         }
@@ -202,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
     /***
      * Called when the Place Picker Activity returns back with a selected place (or after canceling)
      *
@@ -219,8 +220,6 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             // Extract the place information from the API
-            String placeName = place.getName().toString();
-            String placeAddress = place.getAddress().toString();
             String placeID = place.getId();
 
             // Insert a new place into DB
@@ -251,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements
         CheckBox ringerPermissions = (CheckBox) findViewById(R.id.ringer_permissions_checkbox);
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // Check if the API supports such permission change and check if permission is granted
+        assert nm != null;
         if (android.os.Build.VERSION.SDK_INT >= 24 && !nm.isNotificationPolicyAccessGranted()) {
             ringerPermissions.setChecked(false);
         } else {
@@ -259,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void onRingerPermissionsClicked(View view) {
         Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
         startActivity(intent);

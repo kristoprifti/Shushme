@@ -35,7 +35,7 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
      *
      * @param context the calling context/activity
      */
-    public PlaceListAdapter(Context context, PlaceBuffer places) {
+    PlaceListAdapter(Context context, PlaceBuffer places) {
         this.mContext = context;
         this.mPlaces = places;
     }
@@ -69,7 +69,7 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
         holder.addressTextView.setText(placeAddress);
     }
 
-    public void swapPlaces(PlaceBuffer newPlaces){
+    void swapPlaces(PlaceBuffer newPlaces) {
         mPlaces = newPlaces;
         if (mPlaces != null) {
             // Force the RecyclerView to refresh
@@ -84,7 +84,7 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
      */
     @Override
     public int getItemCount() {
-        if(mPlaces==null) return 0;
+        if (mPlaces == null) return 0;
         return mPlaces.getCount();
     }
 
@@ -96,11 +96,10 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.Plac
         TextView nameTextView;
         TextView addressTextView;
 
-        public PlaceViewHolder(View itemView) {
+        PlaceViewHolder(View itemView) {
             super(itemView);
             nameTextView = (TextView) itemView.findViewById(R.id.name_text_view);
             addressTextView = (TextView) itemView.findViewById(R.id.address_text_view);
         }
-
     }
 }

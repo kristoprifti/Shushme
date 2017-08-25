@@ -37,7 +37,7 @@ import java.util.List;
 public class Geofencing implements ResultCallback {
 
     // Constants
-    public static final String TAG = Geofencing.class.getSimpleName();
+    private static final String TAG = Geofencing.class.getSimpleName();
     private static final float GEOFENCE_RADIUS = 50; // 50 meters
     private static final long GEOFENCE_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -46,7 +46,7 @@ public class Geofencing implements ResultCallback {
     private GoogleApiClient mGoogleApiClient;
     private Context mContext;
 
-    public Geofencing(Context context, GoogleApiClient client) {
+    Geofencing(Context context, GoogleApiClient client) {
         mContext = context;
         mGoogleApiClient = client;
         mGeofencePendingIntent = null;
@@ -61,7 +61,7 @@ public class Geofencing implements ResultCallback {
      * when the Geofence is triggered
      * Triggers {@link #onResult} when the geofences have been registered successfully
      */
-    public void registerAllGeofences() {
+    void registerAllGeofences() {
         // Check that the API client is connected and that the list has Geofences in it
         if (mGoogleApiClient == null || !mGoogleApiClient.isConnected() ||
                 mGeofenceList == null || mGeofenceList.size() == 0) {
@@ -86,7 +86,7 @@ public class Geofencing implements ResultCallback {
      * registering the Geofences in the first place
      * Triggers {@link #onResult} when the geofences have been unregistered successfully
      */
-    public void unRegisterAllGeofences() {
+    void unRegisterAllGeofences() {
         if (mGoogleApiClient == null || !mGoogleApiClient.isConnected()) {
             return;
         }
@@ -102,14 +102,13 @@ public class Geofencing implements ResultCallback {
         }
     }
 
-
     /***
      * Updates the local ArrayList of Geofences using data from the passed in list
      * Uses the Place ID defined by the API as the Geofence object Id
      *
      * @param places the PlaceBuffer result of the getPlaceById call
      */
-    public void updateGeofencesList(PlaceBuffer places) {
+    void updateGeofencesList(PlaceBuffer places) {
         mGeofenceList = new ArrayList<>();
         if (places == null || places.getCount() == 0) return;
         for (Place place : places) {
@@ -164,5 +163,4 @@ public class Geofencing implements ResultCallback {
         Log.e(TAG, String.format("Error adding/removing geofence : %s",
                 result.getStatus().toString()));
     }
-
 }

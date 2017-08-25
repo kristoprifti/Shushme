@@ -28,9 +28,7 @@ import android.support.annotation.NonNull;
 
 import static com.example.android.shushme.provider.PlaceContract.PlaceEntry;
 
-
 public class PlaceContentProvider extends ContentProvider {
-
     // Define final integer constants for the directory of places and a single item.
     // It's convention to use 100, 200, 300, etc for directories,
     // and related ints (101, 102, ..) for items in that directory.
@@ -39,7 +37,8 @@ public class PlaceContentProvider extends ContentProvider {
 
     // Declare a static variable for the Uri matcher that you construct
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private static final String TAG = PlaceContentProvider.class.getName();
+    // Member variable for a PlaceDbHelper that's initialized in the onCreate() method
+    private PlaceDbHelper mPlaceDbHelper;
 
     // Define a static buildUriMatcher method that associates URI's with their int match
     public static UriMatcher buildUriMatcher() {
@@ -50,9 +49,6 @@ public class PlaceContentProvider extends ContentProvider {
         uriMatcher.addURI(PlaceContract.AUTHORITY, PlaceContract.PATH_PLACES + "/#", PLACE_WITH_ID);
         return uriMatcher;
     }
-
-    // Member variable for a PlaceDbHelper that's initialized in the onCreate() method
-    private PlaceDbHelper mPlaceDbHelper;
 
     @Override
     public boolean onCreate() {
@@ -90,8 +86,10 @@ public class PlaceContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        // Notify the resolver if the uri has been changed, and return the newly inserted URI
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (getContext() != null) {
+            // Notify the resolver if the uri has been changed, and return the newly inserted URI
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
 
         // Return constructed uri (this points to the newly inserted row of data)
         return returnUri;
@@ -134,8 +132,10 @@ public class PlaceContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
 
-        // Set a notification URI on the Cursor and return that Cursor
-        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        if (getContext() != null) {
+            // Set a notification URI on the Cursor and return that Cursor
+            retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
 
         // Return the desired Cursor
         return retCursor;
@@ -168,7 +168,7 @@ public class PlaceContentProvider extends ContentProvider {
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         // Notify the resolver of a change and return the number of items deleted
-        if (placesDeleted != 0) {
+        if (placesDeleted != 0 && getContext() != null) {
             // A place (or more) was deleted, set notification
             getContext().getContentResolver().notifyChange(uri, null);
         }
@@ -206,14 +206,13 @@ public class PlaceContentProvider extends ContentProvider {
         }
 
         // Notify the resolver of a change and return the number of items updated
-        if (placesUpdated != 0) {
+        if (placesUpdated != 0 && getContext() != null) {
             // A place (or more) was updated, set notification
             getContext().getContentResolver().notifyChange(uri, null);
         }
         // Return the number of places deleted
         return placesUpdated;
     }
-
 
     @Override
     public String getType(@NonNull Uri uri) {
